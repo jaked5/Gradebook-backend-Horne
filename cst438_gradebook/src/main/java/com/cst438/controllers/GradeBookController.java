@@ -1,18 +1,14 @@
 package com.cst438.controllers;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.cst438.domain.Assignment;
@@ -155,10 +151,60 @@ public class GradeBookController {
 		}
 		
 	}
-	
+	//add new assignment for the course. The assignment has a name and due date
+	@PostMapping("/assignment")
+	@Transactional
+
+	public void addNewAssignment ( @RequestParam String name, @RequestParam Date due_date){
+		String email = "dwisneski@csumb.edu";//hard code admin email
+		if(email.equals("dwisneski@csumb.edu")){//Redundant, but just creating the logic for later
+			//create new assignment
+			Assignment a = new Assignment();
+			a.setName(name);
+			a.setDueDate(due_date);
+			assignmentRepository.save(a);
+		}
+		else{
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not Authorized for this action. ");
+		}
+	}
+	@GetMapping("/assignment/{assignment_id}")
+	@Transactional
+	public Optional<Assignment> getAssignment(@PathVariable int assignment_id) {
+		Optional<Assignment> a = assignmentRepository.findById(assignment_id);
+
+		return a;
+	}
+
+	//As an instructor, I can change the name of the assignment for my course. Update db
+	@PutMapping("/assignment/{assignment_id}")
+	@Transactional
+	public void updateAssignmentName( @PathVariable int assignment_id, @RequestParam String name) {
+		String email = "dwisneski@csumb.edu";//hard code admin email
+		Assignment a = checkAssignment(assignment_id, email);
+		if (a == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not Authorized. ");
+		} else {
+			a.setName(name);
+			assignmentRepository.save(a);
+		}
+	}
+
+	//As an instructor, I can delete an assignment  for my course (only if there are no grades for the assignment).
+@DeleteMapping("/assignment/{assignment_id}")
+@Transactional
+public void deleteAssignment(@PathVariable int assignment_id){
+	String email = "dwisneski@csumb.edu";//hard code admin email
+	Assignment a = checkAssignment(assignment_id, email);
+		if(a.getNeedsGrading()==0) {
+			assignmentRepository.delete(a);
+		}
+
+}
+
 	private Assignment checkAssignment(int assignmentId, String email) {
 		// get assignment 
-		Assignment assignment = assignmentRepository.findById(assignmentId).orElse(null);
+		Assignment assignment = assignmentRepository.findAssignmentById(assignmentId);
 		if (assignment == null) {
 			throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Assignment not found. "+assignmentId );
 		}
