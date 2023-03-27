@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +37,7 @@ public class GradeBookController {
 	@Autowired
 	CourseRepository courseRepository;
 
+	@Qualifier("RegistrationService")
 	@Autowired
 	RegistrationService registrationService;
 
@@ -190,46 +192,6 @@ public class GradeBookController {
 			assignmentRepository.save(a);
 		}
 	}
-
-	//add new assignment for the course. The assignment has a name and due date
-	@PostMapping("/assignment")
-	@Transactional
-
-	public void addNewAssignment ( @RequestParam String name, @RequestParam Date due_date){
-		String email = "dwisneski@csumb.edu";//hard code admin email
-		if(email.equals("dwisneski@csumb.edu")){//Redundant, but just creating the logic for later
-			//create new assignment
-			Assignment a = new Assignment();
-			a.setName(name);
-			a.setDueDate(due_date);
-			assignmentRepository.save(a);
-		}
-		else{
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not Authorized for this action. ");
-		}
-	}
-	@GetMapping("/assignment/{assignment_id}")
-	@Transactional
-	public Optional<Assignment> getAssignment(@PathVariable int assignment_id) {
-		Optional<Assignment> a = assignmentRepository.findById(assignment_id);
-
-		return a;
-	}
-
-	//As an instructor, I can change the name of the assignment for my course. Update db
-	@PutMapping("/assignment/{assignment_id}")
-	@Transactional
-	public void updateAssignmentName( @PathVariable int assignment_id, @RequestParam String name) {
-		String email = "dwisneski@csumb.edu";//hard code admin email
-		Assignment a = checkAssignment(assignment_id, email);
-		if (a == null) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not Authorized. ");
-		} else {
-			a.setName(name);
-			assignmentRepository.save(a);
-		}
-	}
-
 
 	//As an instructor, I can delete an assignment  for my course (only if there are no grades for the assignment).
 @DeleteMapping("/assignment/{assignment_id}")

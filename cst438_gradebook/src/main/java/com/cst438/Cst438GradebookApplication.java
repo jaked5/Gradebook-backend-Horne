@@ -18,14 +18,14 @@ public class Cst438GradebookApplication  {
 		SpringApplication.run(Cst438GradebookApplication.class, args);
 	}
 	
-	@Bean(name = "RegistrationService")
+	@Bean(name = "RegistrationServiceMQ")
 	@ConditionalOnProperty(prefix = "registration", name = "service", havingValue = "MQ")
 	public RegistrationService registrationServiceRESTMQ() {
 		return new RegistrationServiceMQ();
 	}
 	
 	
-	@Bean(name = "RegistrationService")
+	@Bean(name = "RegistrationServiceRest")
 	@ConditionalOnProperty(prefix = "registration", name = "service", havingValue = "REST")
 	public RegistrationService registrationServiceREST() {
 		return new RegistrationServiceREST();
