@@ -16,11 +16,12 @@ public class RegistrationServiceREST extends RegistrationService {
 	public RegistrationServiceREST() {
 		System.out.println("REST registration service ");
 	}
-	
+
 	@Override
-	public void sendFinalGrades(int course_id , CourseDTOG courseDTO) { 
-		
-		//TODO  complete this method in homework 4
-		
+	public void sendFinalGrades(int course_id , CourseDTOG courseDTO) {
+
+		//  complete this method in homework 4
+		System.out.println("Sending Final Grades: ");
+		restTemplate.put(registration_url + "/course/" + course_id, courseDTO);
 	}
 }
