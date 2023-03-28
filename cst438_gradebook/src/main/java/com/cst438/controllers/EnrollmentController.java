@@ -30,11 +30,17 @@ public class EnrollmentController {
 	@PostMapping("/enrollment")
 	@Transactional
 	public EnrollmentDTO addEnrollment(@RequestBody EnrollmentDTO enrollmentDTO) {
-		
-		//TODO  complete this method in homework 4
-		
-		return null;
-		
-	}
 
+		Course course = courseRepository.findById(enrollmentDTO.course_id).get();
+		if(course==null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Course id not found.");
+		}
+		Enrollment enrollment = new Enrollment();
+		enrollment.setStudentName(enrollmentDTO.studentName);
+		enrollment.setStudentEmail(enrollmentDTO.studentEmail);
+		enrollment.setCourse(courseRepository.findByCourse_id(enrollmentDTO.course_id));
+
+		enrollmentRepository.save(enrollment);
+		return enrollmentDTO;
+	}
 }
